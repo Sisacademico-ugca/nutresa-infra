@@ -1,0 +1,17 @@
+# Secretos — NUNCA subir al repositorio
+.env
+*.env
+backups/
+*.sql.gz
+*.tar.gz
+
+# Docker volumes locales
+monitoring/portainer_data/
+
+# Logs
+*.log
+nginx/html/*.log
+
+# OS
+.DS_Store
+Thumbs.db

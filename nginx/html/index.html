@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Servicios Nutresa — Portal TI</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f4f6f9;
+      color: #333;
+    }
+    header {
+      background: #c8102e;
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    header h1 { font-size: 1.6rem; }
+    header p  { font-size: 0.9rem; opacity: 0.85; }
+    .badge {
+      background: rgba(255,255,255,0.2);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+    }
+    main { max-width: 960px; margin: 40px auto; padding: 0 20px; }
+    h2 { color: #c8102e; margin-bottom: 16px; font-size: 1.2rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      border-left: 4px solid #c8102e;
+    }
+    .card h3 { font-size: 0.95rem; color: #555; margin-bottom: 6px; }
+    .card .ip  { font-family: monospace; font-size: 1rem; color: #c8102e; font-weight: bold; }
+    .card .vlan { font-size: 0.75rem; color: #888; margin-top: 4px; }
+    .status { display: inline-block; width: 8px; height: 8px;
+              border-radius: 50%; background: #28a745; margin-right: 6px; }
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.8rem;
+      color: #aaa;
+      border-top: 1px solid #e0e0e0;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>🏭 Servicios Nutresa</h1>
+      <p>Portal de Infraestructura TI — Universidad del Quindío 2026-1</p>
+    </div>
+    <span class="badge">DMZ · VLAN 40</span>
+  </header>
+
+  <main>
+    <h2>Servidores activos</h2>
+    <div class="grid">
+      <div class="card">
+        <h3><span class="status"></span>srv-web (este servidor)</h3>
+        <div class="ip">172.20.40.10</div>
+        <div class="vlan">VLAN 40 — DMZ · Nginx 1.25</div>
+      </div>
+      <div class="card">
+        <h3><span class="status"></span>srv-db</h3>
+        <div class="ip">172.20.10.10</div>
+        <div class="vlan">VLAN 10 — Servidores · MySQL 8.0</div>
+      </div>
+      <div class="card">
+        <h3><span class="status"></span>srv-ntp</h3>
+        <div class="ip">172.20.10.11</div>
+        <div class="vlan">VLAN 10 — Servidores · NTP</div>
+      </div>
+      <div class="card">
+        <h3><span class="status"></span>srv-nfs</h3>
+        <div class="ip">172.20.10.12</div>
+        <div class="vlan">VLAN 10 — Servidores · NFS</div>
+      </div>
+    </div>
+
+    <h2>Segmentación de red</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>VLAN 10 — Servidores</h3>
+        <div class="ip">192.168.10.0/24</div>
+        <div class="vlan">DB · NTP · NFS</div>
+      </div>
+      <div class="card">
+        <h3>VLAN 20 — Administración</h3>
+        <div class="ip">192.168.20.0/24</div>
+        <div class="vlan">SW-Admin</div>
+      </div>
+      <div class="card">
+        <h3>VLAN 30 — Usuarios</h3>
+        <div class="ip">192.168.30.0/24</div>
+        <div class="vlan">PC-Usuario1 · PC-Usuario2</div>
+      </div>
+      <div class="card">
+        <h3>VLAN 40 — DMZ</h3>
+        <div class="ip">192.168.40.0/24</div>
+        <div class="vlan">srv-web (acceso externo)</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Proyecto Final — Administración de Infraestructura TI &nbsp;|&nbsp;
+    Anderson Fonseca · John González · Juan Pinzón · María Valencia · Jhony Villanueva
+  </footer>
+</body>
+</html>

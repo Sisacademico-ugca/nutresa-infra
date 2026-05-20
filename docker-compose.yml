@@ -1,0 +1,168 @@
+version: "3.9"
+
+# ============================================================
+#  Infraestructura TI — Servicios Nutresa
+#  Proyecto Final · Universidad del Quindío 2026-1
+#
+#  Redes simuladas (equivalentes a las VLANs del Packet Tracer):
+#    vlan10_servidores  → 172.20.10.0/24  (DB, NTP, NFS)
+#    vlan40_dmz         → 172.20.40.0/24  (Web/Nginx)
+# ============================================================
+
+networks:
+  vlan10_servidores:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.10.0/24
+          gateway: 172.20.10.1
+
+  vlan40_dmz:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.40.0/24
+          gateway: 172.20.40.1
+
+volumes:
+  mysql_data:
+    driver: local
+  nfs_data:
+    driver: local
+  nginx_logs:
+    driver: local
+
+services:
+
+  # ─────────────────────────────────────────
+  # srv-web  →  VLAN 40 (DMZ) · 172.20.40.10
+  # ─────────────────────────────────────────
+  srv-web:
+    build: ./nginx
+    container_name: srv-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Todos los archivos (nginx.conf + html/) se copian en la imagen
+      # vía Dockerfile. Los bind-mounts fallan en Windows con rutas que
+      # tienen tildes/espacios (problema WSL2). Solo se monta el volumen
+      # de logs que es un volumen Docker nombrado (sin ruta de host).
+      - nginx_logs:/var/log/nginx
+    networks:
+      vlan40_dmz:
+        ipv4_address: 172.20.40.10
+      vlan10_servidores:    # proxy hacia la DB
+        ipv4_address: 172.20.10.50
+    depends_on:
+      - srv-db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ─────────────────────────────────────────
+  # srv-db   →  VLAN 10 · 172.20.10.10
+  # ─────────────────────────────────────────
+  srv-db:
+    image: mysql:8.0
+    container_name: srv-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "Nutresa2026"
+      MYSQL_DATABASE: "nutresa_db"
+      MYSQL_USER: "nutresa_user"
+      MYSQL_PASSWORD: "NutresaPass1"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      vlan10_servidores:
+        ipv4_address: 172.20.10.10
+    expose:
+      - "3306"          # Solo accesible internamente (no publicado al host)
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost",
+             "-u", "root", "-pNutresa2026"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ─────────────────────────────────────────
+  # srv-ntp  →  VLAN 10 · 172.20.10.11
+  # ─────────────────────────────────────────
+  srv-ntp:
+    image: cturra/ntp:latest
+    container_name: srv-ntp
+    restart: unless-stopped
+    ports:
+      - "123:123/udp"
+    environment:
+      NTP_SERVERS: "0.co.pool.ntp.org,1.co.pool.ntp.org,time.google.com"
+      LOG_LEVEL: 0
+    networks:
+      vlan10_servidores:
+        ipv4_address: 172.20.10.11
+    cap_add:
+      - SYS_TIME
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # ─────────────────────────────────────────
+  # srv-archivos → VLAN 10 · 172.20.10.12
+  # Samba (SMB/CIFS) — servicio de archivos
+  # compatible con Docker Desktop en Windows
+  # ─────────────────────────────────────────
+  srv-archivos:
+    image: dperson/samba:latest
+    container_name: srv-archivos
+    restart: unless-stopped
+    environment:
+      USER: "nutresa;Nutresa2026"
+      SHARE: "compartido;/share;nutresa;no"
+      TZ: "America/Bogota"
+    volumes:
+      - nfs_data:/share
+    networks:
+      vlan10_servidores:
+        ipv4_address: 172.20.10.12
+    ports:
+      - "4445:445"
+      - "1137:137/udp"
+      - "1138:138/udp"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # ─────────────────────────────────────────
+  # monitoring  →  Portainer (gestión visual)
+  # ─────────────────────────────────────────
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./monitoring/portainer_data:/data
+    networks:
+      vlan10_servidores:
+        ipv4_address: 172.20.10.20

@@ -1,0 +1,10 @@
+# ============================================================
+#  /etc/exports — Configuración NFS · srv-nfs (172.20.10.12)
+#  Comparte /nfsshare hacia la subred VLAN 10 (servidores)
+# ============================================================
+
+# Compartir hacia toda la VLAN 10 (servidores internos)
+/nfsshare  172.20.10.0/24(rw,sync,no_subtree_check,no_root_squash)
+
+# Solo lectura para la VLAN de administración
+/nfsshare  172.20.20.0/24(ro,sync,no_subtree_check)
