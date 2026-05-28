@@ -134,7 +134,7 @@ services:
     restart: unless-stopped
     environment:
       USER: "nutresa;Nutresa2026"
-      SHARE: "compartido;/share;nutresa;no"
+      SHARE: "compartido;/share;yes;no;no;nutresa"
       TZ: "America/Bogota"
     volumes:
       - nfs_data:/share

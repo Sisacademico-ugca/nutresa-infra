@@ -4,13 +4,13 @@
 Universidad del Quindío — Ingeniería de Sistemas y Computación · 2026-1
 
 ## 👥 Equipo
-| Nombre | Rol |
-|--------|-----|
-| Anderson Fonseca López | Ing. de Infraestructura |
-| John Alejandro González Cardenas | Administrador de Redes |
-| Juan Carlos Pinzón | Ing. de Seguridad |
-| María Jazmín Valencia Muñoz | DBA |
-| Jhony Alexander Villanueva Ortiz | Ing. de Sistemas |
+| Nombre |
+|--------|
+| Anderson Fonseca López
+| John Alejandro González Cardenas
+| Juan Carlos Pinzón 
+| María Jazmín Valencia Muñoz 
+| Jhony Alexander Villanueva Ortiz
 
 ---
 
